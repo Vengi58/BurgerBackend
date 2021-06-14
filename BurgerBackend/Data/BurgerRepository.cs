@@ -2,7 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BurgerBackend.Data
 {
@@ -16,18 +17,30 @@ namespace BurgerBackend.Data
 
         public void CreateRestaurant(Restaurant restaurant)
         {
-            var result = DBContext.Restaurants.Add(restaurant);
+            DBContext.Restaurants.Add(restaurant);
+            DBContext.SaveChanges();
+        }
+
+        public void CreateReviewForRestaurant(Review review)
+        {
+            DBContext.Reviews.Add(review);
+            DBContext.SaveChanges();
+        }
+
+        public void DeleteRestaurant(Restaurant restaurant)
+        {
+            DBContext.Restaurants.Remove(restaurant);
             DBContext.SaveChanges();
         }
 
         public Restaurant FindRestaurantByName(string name)
         {
-            return DBContext.Restaurants.FirstOrDefault(r => name.Equals(r.Name));
+            return DBContext.Restaurants.Include(r => r.Hours).FirstOrDefault(r => name.Equals(r.Name));
         }
 
         public List<Restaurant> GetRestaurants()
         {
-            return DBContext.Restaurants.ToList();
+            return DBContext.Restaurants.Include(r => r.Hours).ToList();
         }
 
         public List<Review> GetReviews()
@@ -40,8 +53,19 @@ namespace BurgerBackend.Data
             var result = new List<Review>();
             var restaurant = FindRestaurantByName(restaurantName);
             if (restaurant == null) return result;
-            var reviews = DBContext.Reviews.Where(r => r.RestaurantID == restaurant.RestaurantID);
+            var reviews = DBContext.Reviews.Where(r => r.RestaurantName == restaurant.Name);
             return reviews != null ? reviews.ToList() : new List<Review>();
+        }
+
+        public void UpdateRestaurant(Restaurant restaurant)
+        {
+            var restaurantFound = FindRestaurantByName(restaurant.Name);
+            restaurantFound.City = restaurant.City;
+            restaurantFound.Hours = restaurant.Hours;
+            restaurantFound.Number = restaurant.Number;
+            restaurantFound.PostCode = restaurant.PostCode;
+            restaurantFound.Street = restaurant.Street;
+            DBContext.SaveChanges();
         }
     }
 }

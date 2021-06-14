@@ -4,6 +4,7 @@ using BurgerBackend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Web.Helpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,14 +18,16 @@ namespace BurgerBackend.Models
     [ApiController]
     public class RestaurantsController : ControllerBase
     {
-        private IBurgerRepository Repository;
-        private IMappers Mappers;
-        private IGeoHelper GeoHelper;
-        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoHelper geoHelper)
+        private readonly IBurgerRepository Repository;
+        private readonly IMappers Mappers;
+        private readonly IGeoHelper GeoHelper;
+        private readonly IImageSerce ImageService;
+        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoHelper geoHelper, IImageSerce imageSerce)
         {
             Repository = repository;
             Mappers = mappers;
             GeoHelper = geoHelper;
+            ImageService = imageSerce;
         }
 
         [HttpGet("location")]
@@ -46,52 +49,107 @@ namespace BurgerBackend.Models
         {
             try
             {
+                if (string.IsNullOrEmpty(name)) throw new ArgumentException("Restaurant name must be provided!");
+
                 var restaurant = Repository.FindRestaurantByName(name);
                 return restaurant != null
                     ? Ok(Mappers.ToDTO(Repository.FindRestaurantByName(name)))
                     : NotFound(name);
             }
-            catch (System.Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
 
         [HttpPost]
         public ActionResult CreateRestaurant([FromBody] DTO.Restaurant restaurant)
         {
-            Repository.CreateRestaurant(Mappers.ToModel(restaurant));
-            return Ok();
+            try
+            {
+                if (restaurant == null) throw new ArgumentException("Restaurant must be provided!");
+
+                Repository.CreateRestaurant(Mappers.ToModel(restaurant));
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
-        [HttpPut("{id}")]
-        public void UpdateRestaurant(int id, [FromBody] string value)
+        [HttpPut]
+        public ActionResult UpdateRestaurant([FromBody] DTO.Restaurant restaurant)
         {
+            try
+            {
+                if (restaurant == null) throw new ArgumentException("Restaurant must be provided!");
+                if (string.IsNullOrEmpty(restaurant.Name)) throw new ArgumentException("Restaurant name must be provided!");
+
+                if (Repository.FindRestaurantByName(restaurant.Name) == null) return NotFound(restaurant.Name);
+
+                Repository.UpdateRestaurant(Mappers.ToModel(restaurant));
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpDelete("{name}")]
-        public void DeleteRestaurant(string name)
+        public ActionResult DeleteRestaurant(string name)
         {
+            try
+            {
+                if (string.IsNullOrEmpty(name)) throw new ArgumentException("Restaurant name must be provided!");
+
+                var restaurant = Repository.FindRestaurantByName(name);
+                if (restaurant == null) return NotFound(name);
+
+                Repository.DeleteRestaurant(restaurant);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpGet("image/{restaurant}")]
+        public ActionResult GetImages(string restaurant)
+        {
+            try
+            {
+                var enumerator = ImageService.GetImages(restaurant).GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    return File(enumerator.Current.ToArray(), "iamge/jpg", restaurant + ".jpg");
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
-        [HttpPost("image")]
-        public async Task<ActionResult> PostImage([FromForm] FileUpload fileUpload)
+        [HttpPost("image/{restaurant}")]
+        public ActionResult PostImage(string restaurant, [FromForm] FileUpload fileUpload)
         {
-            var fn = fileUpload.Files.FileName;
-
-            return Ok();
-            //var folderPath = "";
-            //using (var fileContentStream = new System.IO.MemoryStream())
-            //{
-            //    await myFile.CopyToAsync(fileContentStream);
-            //    await System.IO.File.WriteAllBytesAsync(Path.Combine(folderPath, myFile.FileName), fileContentStream.ToArray());
-            //}
-            //return CreatedAtRoute(routeName: "myFile", routeValues: new { filename = myFile.FileName }, value: null);
+            try
+            {
+                ImageService.UploadImage(restaurant, fileUpload.File);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
     }
     public class FileUpload
     {
-        public IFormFile Files { get; set; }
+        public IFormFile File { get; set; }
     }
 }

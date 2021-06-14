@@ -9,13 +9,25 @@ namespace BurgerBackend.Models
     public class Restaurant
     {
         [Key]
-        public int RestaurantID { get; set; }
+        [Required]
+        [MinLength(3)]
+        [MaxLength(100)]
         public string Name { get; set; }
-        public DateTime OpenTime { get; set; }
-        public DateTime CloseTime { get; set; }
+        [Required]
+        public virtual Hours Hours { get; set; }
+        [Required]
+        [MinLength(2)]
+        [MaxLength(100)]
         public String City { get; set; }
+        [Required]
+        [MinLength(2)]
+        [MaxLength(100)]
         public String Street { get; set; }
+        [Required]
+        [Range(1, 10000)]
         public int Number { get; set; }
+        [Required]
+        [Range(1, 10000)]
         public String PostCode { get; set; }
         public String GLat { get; set; }
         public String GLong { get; set; }

@@ -13,5 +13,8 @@ namespace BurgerBackend.Data
         Restaurant FindRestaurantByName(string name);
         List<Review> GetReviews();
         List<Review> GetReviewsForRestaurant(string restaurantName);
+        void CreateReviewForRestaurant(Review review);
+        void UpdateRestaurant(Restaurant restaurant);
+        void DeleteRestaurant(Restaurant restaurant);
     }
 }

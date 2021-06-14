@@ -39,6 +39,8 @@ namespace BurgerBackend
             services.AddScoped<IBurgerRepository, BurgerRepository>();
             services.AddScoped<IMappers, Mappers>();
             services.AddScoped<IGeoHelper, GeoHelper>();
+            services.AddScoped<IImageSerce>(x => new ImageService(@"C:\Users\TamasVeingartner\Pictures\Saved Pictures"));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BurgerBackend", Version = "v1" });

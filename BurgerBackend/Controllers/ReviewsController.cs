@@ -14,29 +14,49 @@ namespace BurgerBackend.Controllers
     [ApiController]
     public class ReviewsController : ControllerBase
     {
-        private IBurgerRepository Repository;
-        private IMappers Mappers;
+        private readonly IBurgerRepository Repository;
+        private readonly IMappers Mappers;
+
         public ReviewsController(IBurgerRepository repository, IMappers mappers)
         {
             Repository = repository;
             Mappers = mappers;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Review>> GetAllReviews()
-        {
-            return Ok(Repository.GetReviews().Select(r => Mappers.ToDTO(r)));
-        }
-
         [HttpGet("{restaurantName}")]
         public ActionResult<IEnumerable<Review>> GetAllReviewsForRestaurant(string restaurantName)
         {
-            return Ok(Repository.GetReviewsForRestaurant(restaurantName).Select(r => Mappers.ToDTO(r)));
+            try
+            {
+                if (string.IsNullOrEmpty(restaurantName)) throw new ArgumentException("Restaurant name must be provided!");
+
+                return Ok(Repository.GetReviewsForRestaurant(restaurantName).Select(r => Mappers.ToDTO(r)));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("{restaurantName}")]
-        public void CreateReviewForRestaurant(string restaurantName, [FromBody] Review value)
+        public ActionResult CreateReviewForRestaurant(string restaurantName, [FromBody] Review review)
         {
+            try
+            {
+                if (string.IsNullOrEmpty(restaurantName)) throw new ArgumentException("Restaurant name must be provided!");
+                if (review == null) throw new ArgumentException("Review must be provided!");
+
+                var restaurant = Repository.FindRestaurantByName(restaurantName);
+                if (restaurant == null) throw new ArgumentException($"Restaurant \"{restaurantName}\" not found!");
+
+                Repository.CreateReviewForRestaurant(Mappers.ToModel(restaurant.Name, review));
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

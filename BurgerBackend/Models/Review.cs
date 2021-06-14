@@ -9,15 +9,17 @@ namespace BurgerBackend.Models
     public class Review
     {
         [Key]
+        [Required]
         public int ReviewID { get; set; }
-        [Range(1, 5)]
+        [Required]
         public int Taste { get; set; }
-        [Range(1, 5)]
+        [Required]
         public int Texture { get; set; }
-        [Range(1, 5)]
+        [Required]
         public int VisualRepresentation { get; set; }
 
-        public int RestaurantID { get; set; }
+        [Required]
+        public string RestaurantName { get; set; }
         public Restaurant Restaurant { get; set; }
     }
 }
