@@ -12,12 +12,13 @@ namespace BurgerBackend.Migrations
                 columns: table => new
                 {
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Street = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Number = table.Column<int>(type: "integer", nullable: false),
                     PostCode = table.Column<string>(type: "text", nullable: false),
-                    GLat = table.Column<string>(type: "text", nullable: true),
-                    GLong = table.Column<string>(type: "text", nullable: true)
+                    GLat = table.Column<double>(type: "double precision", nullable: false),
+                    GLong = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {

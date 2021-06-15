@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BurgerBackend.Migrations
 {
     [DbContext(typeof(BurgerDBContext))]
-    [Migration("20210614204442_init")]
+    [Migration("20210615210231_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,11 +120,16 @@ namespace BurgerBackend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("GLat")
-                        .HasColumnType("text");
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<string>("GLong")
-                        .HasColumnType("text");
+                    b.Property<double>("GLat")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("GLong")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Number")
                         .HasColumnType("integer");
