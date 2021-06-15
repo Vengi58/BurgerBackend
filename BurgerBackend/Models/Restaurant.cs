@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BurgerBackend.Models
 {
@@ -18,6 +16,10 @@ namespace BurgerBackend.Models
         [Required]
         [MinLength(2)]
         [MaxLength(100)]
+        public String Country { get; set; }
+        [Required]
+        [MinLength(2)]
+        [MaxLength(100)]
         public String City { get; set; }
         [Required]
         [MinLength(2)]
@@ -29,8 +31,8 @@ namespace BurgerBackend.Models
         [Required]
         [Range(1, 10000)]
         public String PostCode { get; set; }
-        public String GLat { get; set; }
-        public String GLong { get; set; }
+        public Double GLat { get; set; }
+        public Double GLong { get; set; }
 
         public ICollection<Review> Reviews { get; set; }
 

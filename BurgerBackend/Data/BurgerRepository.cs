@@ -66,6 +66,7 @@ namespace BurgerBackend.Data
         {
             var restaurantFound = FindRestaurantByName(restaurant.Name);
             restaurantFound.City = restaurant.City;
+            restaurantFound.Country = restaurant.Country;
             restaurantFound.Hours = restaurant.Hours;
             restaurantFound.Number = restaurant.Number;
             restaurantFound.PostCode = restaurant.PostCode;

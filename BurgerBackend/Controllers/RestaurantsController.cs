@@ -75,10 +75,10 @@ namespace BurgerBackend.Models
             try
             {
                 if (restaurant == null) throw new ArgumentException("Restaurant must be provided!");
-                var c = GeoHelper.GeoCoding("Hungary", restaurant.City, restaurant.Street, restaurant.Number, restaurant.PostCode);
+                var c = GeoHelper.GeoCoding(restaurant.Country, restaurant.City, restaurant.Street, restaurant.Number, restaurant.PostCode);
                 var restaurantModel = Mappers.ToModel(restaurant);
-                restaurantModel.GLat = c.GLat.ToString();
-                restaurantModel.GLong = c.GLong.ToString();
+                restaurantModel.GLat = c.GLat;
+                restaurantModel.GLong = c.GLong;
                 Repository.CreateRestaurant(restaurantModel);
                 return Ok();
             }

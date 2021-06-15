@@ -15,6 +15,10 @@ namespace BurgerBackend.DTO
         [Required]
         [MinLength(2)]
         [MaxLength(100)]
+        public String Country { get; set; }
+        [Required]
+        [MinLength(2)]
+        [MaxLength(100)]
         public String City { get; set; }
         [Required]
         [MinLength(2)]
