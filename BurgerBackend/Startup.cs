@@ -3,19 +3,11 @@ using BurgerBackend.DTO;
 using BurgerBackend.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BurgerBackend
 {
@@ -37,13 +29,13 @@ namespace BurgerBackend
                 opt.UseNpgsql(Configuration.GetConnectionString("BurgerConnection")));
             services.AddScoped<IBurgerRepository, BurgerRepository>();
             services.AddScoped<IMappers, Mappers>();
-            services.AddScoped<IGeoService>(g => new GoogleGeoService("API KEY PLACE"));
-            services.AddScoped<IImageSerce>(x => new ImageService(@"C:\Users\TamasVeingartner\Pictures\Saved Pictures"));
+            services.AddScoped<IGeoService>(g => new GoogleGeoService("AIzaSyCHiY8xoKAQxoskBQE7oVGExKHAXpm_rSs"));
+            //services.AddScoped<IImageSerce>(x => new ImageService(@"C:\Users\TamasVeingartner\Pictures\Saved Pictures"));
+            services.AddScoped<IImageSerce>(x => new AWSs3ImageService("", "", "burger-backend"));
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BurgerBackend", Version = "v1" });
-                //c.MapType(typeof(IFormFile), () => new OpenApiSchema() { Type = "file", Format = "binary" });
             });
         }
 
