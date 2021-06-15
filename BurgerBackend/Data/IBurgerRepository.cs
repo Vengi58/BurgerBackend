@@ -16,5 +16,6 @@ namespace BurgerBackend.Data
         void CreateReviewForRestaurant(Review review);
         void UpdateRestaurant(Restaurant restaurant);
         void DeleteRestaurant(Restaurant restaurant);
+        List<Restaurant> GetRecommendations(int maxDistance, int maxRecommendation, int minimumAvgScore);
     }
 }

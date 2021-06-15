@@ -38,6 +38,11 @@ namespace BurgerBackend.Data
             return DBContext.Restaurants.Include(r => r.Hours).FirstOrDefault(r => name.Equals(r.Name));
         }
 
+        public List<Restaurant> GetRecommendations(int maxDistance, int maxRecommendation, int minimumAvgScore)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<Restaurant> GetRestaurants()
         {
             return DBContext.Restaurants.Include(r => r.Hours).ToList();

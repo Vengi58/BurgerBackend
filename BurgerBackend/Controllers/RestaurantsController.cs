@@ -20,9 +20,9 @@ namespace BurgerBackend.Models
     {
         private readonly IBurgerRepository Repository;
         private readonly IMappers Mappers;
-        private readonly IGeoHelper GeoHelper;
+        private readonly IGeoService GeoHelper;
         private readonly IImageSerce ImageService;
-        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoHelper geoHelper, IImageSerce imageSerce)
+        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoService geoHelper, IImageSerce imageSerce)
         {
             Repository = repository;
             Mappers = mappers;
@@ -31,15 +31,22 @@ namespace BurgerBackend.Models
         }
 
         [HttpGet("location")]
-        public ActionResult<GeoInfo> GetLocation()
+        public ActionResult<Coordinates> GetLocation()
         {
-            var location = GeoHelper.GetGeoInfo().Result;
+            var location = GeoHelper.GeoLocation();
+            var c = GeoHelper.GeoDistances(
+                location,
+                new List<Coordinates> {
+                    new Coordinates{ GLat = 47.4984183, GLong = 19.0566239 },
+                    new Coordinates { GLat = 47.510417, GLong = 18.925901 }
+                    });
             return Ok(location);
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<DTO.Restaurant>> GetAllRestaurants()
         {
+
             var restaurants = Repository.GetRestaurants().Select(r => Mappers.ToDTO(r));
             return Ok(restaurants);
         }
@@ -68,8 +75,11 @@ namespace BurgerBackend.Models
             try
             {
                 if (restaurant == null) throw new ArgumentException("Restaurant must be provided!");
-
-                Repository.CreateRestaurant(Mappers.ToModel(restaurant));
+                var c = GeoHelper.GeoCoding("Hungary", restaurant.City, restaurant.Street, restaurant.Number, restaurant.PostCode);
+                var restaurantModel = Mappers.ToModel(restaurant);
+                restaurantModel.GLat = c.GLat.ToString();
+                restaurantModel.GLong = c.GLong.ToString();
+                Repository.CreateRestaurant(restaurantModel);
                 return Ok();
             }
             catch (Exception e)
@@ -149,6 +159,19 @@ namespace BurgerBackend.Models
             {
                 ImageService.UploadImage(restaurant, fileUpload.File);
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{maxDistance}/{maxRecommendation}/{minimumAvgScore}")]
+        public ActionResult<List<string>> GetRecommendations(int maxDistance, int maxRecommendation, int minimumAvgScore)
+        {
+            try
+            {                
+                return Ok(Repository.GetRecommendations(maxDistance, maxRecommendation, minimumAvgScore));
             }
             catch (Exception e)
             {

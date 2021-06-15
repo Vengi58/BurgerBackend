@@ -33,12 +33,11 @@ namespace BurgerBackend
         {
 
             services.AddControllers();
-            services.AddHttpContextAccessor();
             services.AddEntityFrameworkNpgsql().AddDbContext<BurgerDBContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("BurgerConnection")));
             services.AddScoped<IBurgerRepository, BurgerRepository>();
             services.AddScoped<IMappers, Mappers>();
-            services.AddScoped<IGeoHelper, GeoHelper>();
+            services.AddScoped<IGeoService>(g => new GoogleGeoService("API KEY PLACE"));
             services.AddScoped<IImageSerce>(x => new ImageService(@"C:\Users\TamasVeingartner\Pictures\Saved Pictures"));
 
             services.AddSwaggerGen(c =>
