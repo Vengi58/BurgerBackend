@@ -115,17 +115,26 @@ namespace BurgerBackend.Models
                 return BadRequest(e.Message);
             }
         }
-        [HttpGet("image/{restaurant}")]
-        public ActionResult GetImages(string restaurant)
+
+        [HttpGet("image/{restaurant}/{imageID}")]
+        public ActionResult GetImageOfRestaurant(string restaurant, string imageID)
         {
             try
             {
-                var enumerator = ImageService.GetImages(restaurant).GetEnumerator();
-                while (enumerator.MoveNext())
-                {
-                    return File(enumerator.Current.ToArray(), "iamge/jpg", restaurant + ".jpg");
-                }
-                return Ok();
+                return File(ImageService.GetImageOfRestaurant(restaurant, imageID).ToArray(), "image/jpg", imageID);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("image/{restaurant}")]
+        public ActionResult<List<string>> GetImages(string restaurant)
+        {
+            try
+            {
+                return Ok(ImageService.GetImageIDs(restaurant));
             }
             catch (Exception e)
             {

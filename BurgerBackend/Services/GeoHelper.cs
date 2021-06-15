@@ -29,8 +29,6 @@ namespace BurgerBackend.Services
         public async Task<GeoInfo> GetGeoInfo()
         {
             //var ip = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress;
-            var ip = "88.132.184.178";
-            var accesKey = "9c1f3de4b6dc2feac84e775cf9b75564";
             try
             {
              //   var res = await _httpClient.PostAsync($"https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyDG3jEVhnHN-im18GtgGPgH-XZhp9M6Kwg");
