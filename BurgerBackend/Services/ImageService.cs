@@ -67,7 +67,7 @@ namespace BurgerBackend.Services
         public void UploadImage(string restaurantName, IFormFile file)
         {
             var directoryPath = Path.Combine(DestinationFolder, restaurantName);
-            var path = Path.Combine(directoryPath, new Guid() + "_" + file.FileName);
+            var path = Path.Combine(directoryPath, Guid.NewGuid() + "_" + file.FileName);
             if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
             using var stream = new FileStream(path, FileMode.Create);
             file.CopyToAsync(stream);

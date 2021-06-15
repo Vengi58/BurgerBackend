@@ -116,7 +116,7 @@ namespace BurgerBackend.Models
             }
         }
 
-        [HttpGet("image/{restaurant}/{imageID}")]
+        [HttpGet("Images/{restaurant}/{imageID}")]
         public ActionResult GetImageOfRestaurant(string restaurant, string imageID)
         {
             try
@@ -129,7 +129,7 @@ namespace BurgerBackend.Models
             }
         }
 
-        [HttpGet("image/{restaurant}")]
+        [HttpGet("Images/{restaurant}")]
         public ActionResult<List<string>> GetImages(string restaurant)
         {
             try
@@ -142,7 +142,7 @@ namespace BurgerBackend.Models
             }
         }
 
-        [HttpPost("image/{restaurant}")]
+        [HttpPost("Images/{restaurant}")]
         public ActionResult PostImage(string restaurant, [FromForm] FileUpload fileUpload)
         {
             try
