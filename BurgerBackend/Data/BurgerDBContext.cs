@@ -1,15 +1,11 @@
 ﻿using BurgerBackend.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BurgerBackend.Data
 {
     public class BurgerDBContext : DbContext
     {
-        public BurgerDBContext(DbContextOptions<BurgerDBContext> options) : base(options) 
-        {
-
-        }
+        public BurgerDBContext(DbContextOptions<BurgerDBContext> options) : base(options) { }
 
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<Review> Reviews { get; set; }
@@ -21,7 +17,7 @@ namespace BurgerBackend.Data
                 .HasKey(r => r.Name);
 
             modelBuilder.Entity<Restaurant>()
-                .HasOne<Hours>(r => r.Hours)
+                .HasOne(r => r.Hours)
                 .WithOne(h => h.Restaurant)
                 .HasForeignKey<Hours>(h => h.RestaurantName);
 

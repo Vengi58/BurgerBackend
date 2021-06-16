@@ -3,16 +3,11 @@ using BurgerBackend.DTO;
 using BurgerBackend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Web.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-namespace BurgerBackend.Models
+namespace BurgerBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -30,29 +25,22 @@ namespace BurgerBackend.Models
             ImageService = imageSerce;
         }
 
-        [HttpGet("location")]
-        public ActionResult<Coordinates> GetLocation()
-        {
-            var location = GeoHelper.GeoLocation();
-            var c = GeoHelper.GeoDistances(
-                location,
-                new List<Coordinates> {
-                    new Coordinates{ GLat = 47.4984183, GLong = 19.0566239 },
-                    new Coordinates { GLat = 47.510417, GLong = 18.925901 }
-                    });
-            return Ok(location);
-        }
-
         [HttpGet]
-        public ActionResult<IEnumerable<DTO.Restaurant>> GetAllRestaurants()
+        public ActionResult<IEnumerable<Restaurant>> GetAllRestaurants()
         {
-
-            var restaurants = Repository.GetRestaurants().Select(r => Mappers.ToDTO(r));
-            return Ok(restaurants);
+            try
+            {
+                var restaurants = Repository.GetRestaurants().Select(r => Mappers.ToDTO(r));
+                return Ok(restaurants);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{name}")]
-        public ActionResult<DTO.Restaurant> GetRestaurantByName(string name)
+        public ActionResult<Restaurant> GetRestaurantByName(string name)
         {
             try
             {
@@ -70,7 +58,7 @@ namespace BurgerBackend.Models
         }
 
         [HttpPost]
-        public ActionResult CreateRestaurant([FromBody] DTO.Restaurant restaurant)
+        public ActionResult CreateRestaurant([FromBody] Restaurant restaurant)
         {
             try
             {
@@ -89,7 +77,7 @@ namespace BurgerBackend.Models
         }
 
         [HttpPut]
-        public ActionResult UpdateRestaurant([FromBody] DTO.Restaurant restaurant)
+        public ActionResult UpdateRestaurant([FromBody] Restaurant restaurant)
         {
             try
             {
@@ -166,12 +154,23 @@ namespace BurgerBackend.Models
             }
         }
 
-        [HttpGet("{maxDistance}/{maxRecommendation}/{minimumAvgScore}")]
-        public ActionResult<List<string>> GetRecommendations(int maxDistance, int maxRecommendation, int minimumAvgScore)
+        [HttpGet("{maxDistance}/{maxRecommendation}")]
+        public ActionResult<List<RestaurantWithDistance>> GetRecommendations(int maxDistance, int maxRecommendation)
         {
             try
-            {                
-                return Ok(Repository.GetRecommendations(maxDistance, maxRecommendation, minimumAvgScore));
+            {
+                var restaurants = Repository.GetRestaurants();
+                var myLocation = GeoHelper.GeoLocation();
+                var distances = GeoHelper.GeoDistances(myLocation, restaurants.Select(r => new Coordinates { GLat = r.GLat, GLong = r.GLong }).ToList());
+                var result = new List<RestaurantWithDistance>();
+                for (int i = 0; i < distances.Count; i++)
+                {
+                    if(distances[i] <= maxDistance)
+                    {
+                        result.Add(new RestaurantWithDistance(Mappers.ToDTO(restaurants[i]), distances[i]));
+                    }
+                }
+                return Ok(result.OrderBy(r => r.Distance).Take(maxRecommendation).ToList());
             }
             catch (Exception e)
             {

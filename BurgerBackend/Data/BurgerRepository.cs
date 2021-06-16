@@ -1,10 +1,7 @@
 ﻿using BurgerBackend.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-
 namespace BurgerBackend.Data
 {
     public class BurgerRepository: IBurgerRepository
@@ -36,11 +33,6 @@ namespace BurgerBackend.Data
         public Restaurant FindRestaurantByName(string name)
         {
             return DBContext.Restaurants.Include(r => r.Hours).FirstOrDefault(r => name.Equals(r.Name));
-        }
-
-        public List<Restaurant> GetRecommendations(int maxDistance, int maxRecommendation, int minimumAvgScore)
-        {
-            throw new NotImplementedException();
         }
 
         public List<Restaurant> GetRestaurants()

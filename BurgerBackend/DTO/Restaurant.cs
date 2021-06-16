@@ -33,4 +33,20 @@ namespace BurgerBackend.DTO
         [Required]
         public Hours Hours { get; set; }
     }
+
+    public class RestaurantWithDistance: Restaurant
+    {
+        public RestaurantWithDistance(Restaurant restaurant, int distance)
+        {
+            City = restaurant.City;
+            Country = restaurant.Country;
+            Hours = restaurant.Hours;
+            Name = restaurant.Name;
+            Number = restaurant.Number;
+            PostCode = restaurant.PostCode;
+            Street = restaurant.Street;
+            Distance = distance;
+        }
+        public int Distance { get; set; }
+    }
 }
