@@ -15,16 +15,29 @@ namespace BurgerBackend.Controllers
     {
         private readonly IBurgerRepository Repository;
         private readonly IMappers Mappers;
-        private readonly IGeoService GeoHelper;
+        private readonly IGeoService GeoService;
         private readonly IImageSerce ImageService;
-        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoService geoHelper, IImageSerce imageSerce)
+        public RestaurantsController(IBurgerRepository repository, IMappers mappers, IGeoService geoService, IImageSerce imageSerce)
         {
             Repository = repository;
             Mappers = mappers;
-            GeoHelper = geoHelper;
+            GeoService = geoService;
             ImageService = imageSerce;
         }
 
+        [HttpGet("/location")]
+        public ActionResult<Coordinates> GetMyLocation()
+        {
+            try
+            {
+                var location = GeoService.GeoLocation();
+                return Ok(location);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         [HttpGet]
         public ActionResult<IEnumerable<Restaurant>> GetAllRestaurants()
         {
@@ -63,7 +76,7 @@ namespace BurgerBackend.Controllers
             try
             {
                 if (restaurant == null) throw new ArgumentException("Restaurant must be provided!");
-                var c = GeoHelper.GeoCoding(restaurant.Country, restaurant.City, restaurant.Street, restaurant.Number, restaurant.PostCode);
+                var c = GeoService.GeoCoding(restaurant.Country, restaurant.City, restaurant.Street, restaurant.Number, restaurant.PostCode);
                 var restaurantModel = Mappers.ToModel(restaurant);
                 restaurantModel.GLat = c.GLat;
                 restaurantModel.GLong = c.GLong;
@@ -160,8 +173,8 @@ namespace BurgerBackend.Controllers
             try
             {
                 var restaurants = Repository.GetRestaurants();
-                var myLocation = GeoHelper.GeoLocation();
-                var distances = GeoHelper.GeoDistances(myLocation, restaurants.Select(r => new Coordinates { GLat = r.GLat, GLong = r.GLong }).ToList());
+                var myLocation = GeoService.GeoLocation();
+                var distances = GeoService.GeoDistances(myLocation, restaurants.Select(r => new Coordinates { GLat = r.GLat, GLong = r.GLong }).ToList());
                 var result = new List<RestaurantWithDistance>();
                 for (int i = 0; i < distances.Count; i++)
                 {
@@ -178,6 +191,28 @@ namespace BurgerBackend.Controllers
             }
         }
 
+        [HttpPost("{maxDistance}/{maxRecommendation}")]
+        public ActionResult<List<RestaurantWithDistance>> GetRecommendationsForLocation(int maxDistance, int maxRecommendation, [FromBody] Coordinates coordinates)
+        {
+            try
+            {
+                var restaurants = Repository.GetRestaurants();
+                var distances = GeoService.GeoDistances(coordinates, restaurants.Select(r => new Coordinates { GLat = r.GLat, GLong = r.GLong }).ToList());
+                var result = new List<RestaurantWithDistance>();
+                for (int i = 0; i < distances.Count; i++)
+                {
+                    if (distances[i] <= maxDistance)
+                    {
+                        result.Add(new RestaurantWithDistance(Mappers.ToDTO(restaurants[i]), distances[i]));
+                    }
+                }
+                return Ok(result.OrderBy(r => r.Distance).Take(maxRecommendation).ToList());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
     public class FileUpload
     {
