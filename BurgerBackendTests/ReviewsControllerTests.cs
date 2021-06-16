@@ -1,10 +1,8 @@
 ﻿using BurgerBackend.Controllers;
 using BurgerBackend.DTO;
-using BurgerBackend.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
-using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
