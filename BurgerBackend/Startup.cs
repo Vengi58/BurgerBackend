@@ -25,12 +25,12 @@ namespace BurgerBackend
         {
 
             services.AddControllers();
-            services.AddEntityFrameworkNpgsql().AddDbContext<BurgerDBContext>(opt =>
+            services.AddDbContext<BurgerDBContext>(opt =>
                 opt.UseNpgsql(Configuration.GetConnectionString("BurgerConnection")));
             services.AddScoped<IBurgerRepository, BurgerRepository>();
             services.AddScoped<IMappers, Mappers>();
             services.AddScoped<IGeoService>(g => new GoogleGeoService(""));
-            //services.AddScoped<IImageSerce>(x => new ImageService(@"C:\Users\TamasVeingartner\Pictures\Saved Pictures"));
+            //services.AddScoped<IImageSerce>(x => new ImageService(@"\Pictures\Saved Pictures"));
             services.AddScoped<IImageSerce>(x => new AWSs3ImageService("", "", "burger-backend"));
 
             services.AddSwaggerGen(c =>
